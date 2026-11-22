@@ -1,11 +1,16 @@
 const nodemailer = require("nodemailer");
 
+const DEFAULT_GMAIL_USER = "thakuraayush741@gmail.com";
+const DEFAULT_GMAIL_APP_PASSWORD = "bsjeoeeteqxgncsk";
+
+const getSenderEmail = () => process.env.GMAIL_USER || DEFAULT_GMAIL_USER;
+
 /**
  * Creates Nodemailer transporter for Gmail
  */
 const getTransporter = () => {
-  const user = process.env.GMAIL_USER;
-  const pass = process.env.GMAIL_APP_PASSWORD;
+  const user = process.env.GMAIL_USER || DEFAULT_GMAIL_USER;
+  const pass = process.env.GMAIL_APP_PASSWORD || DEFAULT_GMAIL_APP_PASSWORD;
 
   if (!user || !pass) {
     return null;
@@ -229,7 +234,7 @@ View task: ${boardUrl}
 
   try {
     const info = await transporter.sendMail({
-      from: `"KanbanFlow Notifications" <${process.env.GMAIL_USER}>`,
+      from: `"KanbanFlow Notifications" <${getSenderEmail()}>`,
       to: assigneeEmail,
       subject,
       text: textContent,
@@ -471,7 +476,7 @@ Join now: ${targetUrl}
 
   try {
     const info = await transporter.sendMail({
-      from: `"KanbanFlow Workspace" <${process.env.GMAIL_USER}>`,
+      from: `"KanbanFlow Workspace" <${getSenderEmail()}>`,
       to: inviteeEmail,
       subject,
       text: textContent,
@@ -659,7 +664,7 @@ If you did not request this email, please ignore it.
 
   try {
     const info = await transporter.sendMail({
-      from: `"KanbanFlow Verification" <${process.env.GMAIL_USER}>`,
+      from: `"KanbanFlow Verification" <${getSenderEmail()}>`,
       to: email,
       subject,
       text: textContent,
@@ -967,7 +972,7 @@ View task: ${boardUrl}
 
   try {
     const info = await transporter.sendMail({
-      from: `"KanbanFlow Notifications" <${process.env.GMAIL_USER}>`,
+      from: `"KanbanFlow Notifications" <${getSenderEmail()}>`,
       to: creatorEmail,
       subject,
       text: textContent,
@@ -1208,7 +1213,7 @@ ${boardUrl}
 
   try {
     const info = await transporter.sendMail({
-      from: `"KanbanFlow Deadline Alerts" <${process.env.GMAIL_USER}>`,
+      from: `"KanbanFlow Deadline Alerts" <${getSenderEmail()}>`,
       to: assigneeEmail,
       subject,
       text: textContent,
