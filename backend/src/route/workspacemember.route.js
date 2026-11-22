@@ -7,8 +7,16 @@ const {
   addWorkspaceMember,
   getWorkspaceMembers,
   updateMemberRole,
-  removeMember
+  removeMember,
+  getAvailableUsersForWorkspace
 } = require("../controller/workspacemember.controller");
+
+// 0. Get available registered users for workspace
+router.get(
+  "/workspaces/:workspaceId/available-users",
+  jwtverify,
+  getAvailableUsersForWorkspace
+);
 
 // 1. Add member to workspace
 router.post(

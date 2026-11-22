@@ -1,4 +1,8 @@
 
+const path = require("path");
+require("dotenv").config({ path: path.resolve(__dirname, ".env") });
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -9,7 +13,18 @@ const app = express();
 // ===============================
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: (origin, callback) => {
+      // Allow requests with no origin (curl, mobile apps, postman, server-to-server)
+      if (!origin) return callback(null, true);
+      // Allow any localhost or 127.0.0.1 port
+      if (
+        /^http:\/\/localhost(:\d+)?$/.test(origin) ||
+        /^http:\/\/127\.0\.0\.1(:\d+)?$/.test(origin)
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
     credentials: true,
   })
 );
@@ -17,8 +32,8 @@ app.use(
 // ===============================
 // BODY PARSER
 // ===============================
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 app.use(cookieParser());
 // ===============================
@@ -45,5 +60,15 @@ app.use("/api", commentRoute);
 app.use("/api", dashboardRoute);
 app.use("/api", notificationRoute);
 
+// ===============================
+// GLOBAL ERROR HANDLER
+// ===============================
+app.use((err, req, res, next) => {
+  const statusCode = err.statusCode || 500;
+  res.status(statusCode).json({
+    success: false,
+    message: err.message || "Internal Server Error"
+  });
+});
 
 module.exports = app;

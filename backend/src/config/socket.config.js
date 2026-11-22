@@ -2,49 +2,46 @@ const { Server } = require("socket.io");
 const { socketAuthMiddleware } = require("../middlewares/socket.middleware");
 const redis = require("../config/redis.config");
 
-const Redis = require("ioredis");
-
-const redisSubscriber = new Redis(
-  process.env.REDIS_URL || "redis://127.0.0.1:6379",
-  {
-    maxRetriesPerRequest: null,
-  }
-);
 let io;
 
 const initSocket = (httpServer) => {
   io = new Server(httpServer, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: (origin, callback) => callback(null, true),
       methods: ["GET", "POST", "PATCH", "DELETE"],
       credentials: true,
     },
-    transports: ["polling", "websocket"],
+    transports: ["websocket", "polling"],
   });
 
   // Socket authentication
   io.use(socketAuthMiddleware);
 
   io.on("connection", async (socket) => {
+    const userIdStr = socket.user._id ? socket.user._id.toString() : socket.user.id;
 
     console.log(
-      `Socket Connected: User ID [${socket.user.id}] Socket ID: ${socket.id}`
+      `Socket Connected: User ID [${userIdStr}] Socket ID: ${socket.id}`
     );
 
     // =========================
-    // USER ROOM
+    // USER ROOMS
     // =========================
+    socket.join(`user:${userIdStr}`);
+    if (socket.user.id && socket.user.id !== userIdStr) {
+      socket.join(`user:${socket.user.id}`);
+    }
 
-    socket.join(`user:${socket.user.id}`);
-
-    const key = `user:${socket.user.id}:sockets`;
-
-    const count = await redis.incr(key);
-
-    if (count === 1) {
-      io.emit("user_online", {
-        userId: socket.user.id,
-      });
+    try {
+      const key = `user:${userIdStr}:sockets`;
+      const count = await redis.incr(key);
+      if (count === 1) {
+        io.emit("user_online", {
+          userId: userIdStr,
+        });
+      }
+    } catch (redisErr) {
+      // Redis offline is okay
     }
 
     // =========================

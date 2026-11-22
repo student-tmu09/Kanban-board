@@ -4,8 +4,15 @@ const router = express.Router();
 const { jwtverify } = require("../middlewares/auth.middleware");
 
 const {
-  getDashboard
+  getDashboard,
+  getUserDashboardSummary
 } = require("../controller/dashboard.controller");
+
+router.get(
+  "/dashboard/summary",
+  jwtverify,
+  getUserDashboardSummary
+);
 
 router.get(
   "/workspaces/:workspaceId/dashboard",

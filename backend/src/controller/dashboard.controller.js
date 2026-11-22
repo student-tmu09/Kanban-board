@@ -105,3 +105,58 @@ exports.getDashboard = async (req, res) => {
     )
   );
 };
+
+exports.getUserDashboardSummary = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    // 1. All workspace memberships for user
+    const memberships = await WorkspaceMember.find({ userId });
+    const workspaceIds = memberships.map((m) => m.workspaceId);
+
+    // 2. Total workspaces
+    const totalWorkspaces = workspaceIds.length;
+
+    // 3. Total boards
+    const boards = await Board.find({ workspace: { $in: workspaceIds } }).select("_id name");
+    const totalBoards = boards.length;
+
+    // 4. Tasks assigned to this user that are active
+    const assignedTasks = await Task.countDocuments({
+      assigneeId: userId,
+      status: { $ne: "DONE" }
+    });
+
+    // 5. Total completed tasks for this user
+    const completedTasks = await Task.countDocuments({
+      assigneeId: userId,
+      status: "DONE"
+    });
+
+    // 6. Unread notifications
+    const Notification = require("../models/notification.model");
+    const unreadNotifications = await Notification.countDocuments({
+      user: userId,
+      isRead: false
+    });
+
+    return res.status(200).json(
+      new ApiResponse(
+        200,
+        {
+          totalWorkspaces,
+          totalBoards,
+          assignedTasks,
+          completedTasks,
+          unreadNotifications
+        },
+        "User dashboard summary fetched"
+      )
+    );
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};

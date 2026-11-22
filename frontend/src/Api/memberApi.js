@@ -6,6 +6,9 @@ export const addMember = (workspaceId, data) =>
 export const getMembers = (workspaceId) =>
   api.get(`/workspaces/${workspaceId}/members`);
 
+export const getAvailableUsers = (workspaceId) =>
+  api.get(`/workspaces/${workspaceId}/available-users`);
+
 export const updateMemberRole = (workspaceId, userId, data) =>
   api.patch(`/workspaces/${workspaceId}/members/${userId}`, data);
 

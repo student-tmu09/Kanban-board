@@ -28,10 +28,10 @@ exports.createboard = async (req, res) => {
     throw new ApiError(400, "Board name is required");
   }
 
-  // Permission Check: Viewer board create nahi kar sakta
+  // Permission Check: Sirf workspace OWNER hi board create kar sakta hai
   const member = await checkWorkspaceMember(workspaceId, userId);
-  if (!member || member.role === "VIEWER") {
-    throw new ApiError(403, "VIEWER role cannot create boards");
+  if (!member || member.role !== "OWNER") {
+    throw new ApiError(403, "Sirf workspace OWNER hi board create kar sakta hai");
   }
 
   const board = await Board.create({
@@ -110,8 +110,8 @@ exports.updateBoard = async (req, res) => {
   }
 
   const member = await checkWorkspaceMember(board.workspace, userId);
-  if (member.role === "VIEWER") {
-    throw new ApiError(403, "VIEWER role cannot update boards");
+  if (!member || member.role !== "OWNER") {
+    throw new ApiError(403, "Sirf workspace OWNER hi board update kar sakta hai");
   }
 
   if (name !== undefined) board.name = name;
@@ -144,8 +144,8 @@ exports.deleteBoard = async (req, res) => {
   }
 
   const member = await checkWorkspaceMember(board.workspace, userId);
-  if (member.role === "VIEWER") {
-    throw new ApiError(403, "VIEWER role cannot delete boards");
+  if (!member || member.role !== "OWNER") {
+    throw new ApiError(403, "Sirf workspace OWNER hi board delete kar sakta hai");
   }
 
   // Cleanup: Board ke saath judey saare Tasks bhi delete karein

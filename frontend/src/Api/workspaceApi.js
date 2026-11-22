@@ -6,3 +6,4 @@ export const getWorkspaceById = (id) => api.get(`/workspaces/${id}`);
 export const updateWorkspace = (id, data) => api.patch(`/workspaces/${id}`, data);
 export const deleteWorkspace = (id) => api.delete(`/workspaces/${id}`);
 export const getDashboard = (id) => api.get(`/workspaces/${id}/dashboard`);
+export const getUserDashboardSummary = () => api.get("/dashboard/summary");

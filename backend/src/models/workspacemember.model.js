@@ -4,8 +4,8 @@ const workspaceMemberSchema = new mongoose.Schema(
   {
     role: {
       type: String,
-      enum: ['OWNER', 'EDITOR', 'VIEWER'],
-      default: 'VIEWER'
+      enum: ['OWNER', 'MEMBER', 'EDITOR', 'VIEWER'],
+      default: 'MEMBER'
     },
     userId: {
       type: mongoose.Schema.Types.ObjectId,

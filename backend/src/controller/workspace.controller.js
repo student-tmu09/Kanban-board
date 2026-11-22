@@ -3,9 +3,9 @@ const Workspace = require("../models/workspace.model");
 const WorkspaceMember= require("../models/workspacemember.model");
 const Board = require("../models/board.model");
 const Task = require("../models/task.model");
-const {workspaceCreateNotification}=require("../queues/email.queue")
-const{ ApiError} = require('../utils/ApiError');
-const {ApiResponse} = require('../utils/ApiResponse');
+const { ApiError } = require('../utils/ApiError');
+const { ApiResponse } = require('../utils/ApiResponse');
+const { createAndSendNotification } = require('../services/notification.services');
 
 // 1. CREATE WORKSPACE
 exports.createWorkspace = async (req, res) => {
@@ -35,10 +35,14 @@ exports.createWorkspace = async (req, res) => {
     "workspace_created",
     {workspace}
   )
-  await workspaceCreateNotification({
+
+  await createAndSendNotification({
     userId,
-    workspaceId:workspace._id
-  })
+    type: "workspace_created",
+    message: `You created workspace "${workspace.name}"`,
+    workspaceId: workspace._id
+  });
+
   return res
     .status(201)
     .json(new ApiResponse(201, workspace, "Workspace created successfully"));

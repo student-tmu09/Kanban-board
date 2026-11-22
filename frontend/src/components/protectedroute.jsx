@@ -1,39 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { Navigate, Outlet } from "react-router-dom";
-import axios from "axios";
+import React from "react";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = () => {
-  const [loading, setLoading] = useState(true);
-  const [authenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await axios.get("http://localhost:3000/api/getcurrentuser", {
-          withCredentials: true,
-        });
-
-        setAuthenticated(true);
-      } catch (error) {
-        console.log("Auth check failed:", error);
-        setAuthenticated(false);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    checkAuth();
-  }, []);
+export default function ProtectedRoute() {
+  const { user, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) {
-    return <div>Checking authentication...</div>;
+    return (
+      <div className="auth-loading-screen">
+        <div className="auth-spinner" />
+        <p>Loading your workspace...</p>
+      </div>
+    );
   }
 
-  if (!authenticated) {
-    return <Navigate to="/login" replace />;
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   return <Outlet />;
-};
-
-export default ProtectedRoute;
+}

@@ -20,15 +20,32 @@ const taskSchema = new mongoose.Schema(
       ref: 'User',
       default: null
     },
-      createrId:{
-         type: mongoose.Schema.Types.ObjectId,
+    createrId: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      default: null
+    },
+    dueDate: {
+      type: Date,
+      default: null
+    },
+    dueReminder24hSent: {
+      type: Boolean,
+      default: false
+    },
+    completionProof: {
+      note: { type: String, default: "" },
+      fileUrl: { type: String, default: "" },
+      fileName: { type: String, default: "" },
+      fileType: { type: String, default: "" },
+      linkUrl: { type: String, default: "" },
+      submittedAt: { type: Date, default: null },
+      submittedBy: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        default: null
       }
-      ,dueDate: {
-       type: Date,
-       default: null
-}
-    
+    }
   },
   { timestamps: true }
 );
