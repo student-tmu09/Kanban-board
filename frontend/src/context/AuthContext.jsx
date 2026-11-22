@@ -18,6 +18,15 @@ export function AuthProvider({ children }) {
 
   // Check auth status on app start
   const checkAuth = useCallback(async () => {
+    const token = typeof window !== "undefined" ? localStorage.getItem("kanban_token") : null;
+    if (!token) {
+      setUser(null);
+      localStorage.removeItem("kanban_user");
+      if (socket.connected) socket.disconnect();
+      setLoading(false);
+      return;
+    }
+
     try {
       const res = await getCurrentUser();
       const data = unwrap(res, null);
@@ -37,11 +46,14 @@ export function AuthProvider({ children }) {
       } else {
         setUser(null);
         localStorage.removeItem("kanban_user");
+        localStorage.removeItem("kanban_token");
         socket.disconnect();
       }
     } catch (err) {
       setUser(null);
       localStorage.removeItem("kanban_user");
+      localStorage.removeItem("kanban_token");
+      socket.disconnect();
     } finally {
       setLoading(false);
     }
