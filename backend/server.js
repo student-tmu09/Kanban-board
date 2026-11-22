@@ -9,7 +9,7 @@ const connectDB = require("./src/config/db.config");
 const { initSocket } = require("./src/config/socket.config");
 const { startTaskReminderScheduler } = require("./src/services/taskReminder.services");
 require("./src/workers/notification.worker");
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);
 
@@ -22,8 +22,8 @@ const startServer = async () => {
     initSocket(server);
 
     // Start server
-    server.listen(PORT, () => {
-      console.log(`Server running on http://localhost:${PORT}`);
+    server.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server running on port ${PORT}`);
       startTaskReminderScheduler();
     });
   } catch (error) {

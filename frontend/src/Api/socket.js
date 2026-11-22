@@ -8,8 +8,18 @@ const getSavedToken = () => {
   }
 };
 
+const getSocketUrl = () => {
+  if (import.meta.env.VITE_SOCKET_URL) {
+    return import.meta.env.VITE_SOCKET_URL;
+  }
+  if (import.meta.env.VITE_API_URL) {
+    return import.meta.env.VITE_API_URL.replace(/\/api\/?$/, "");
+  }
+  return "http://localhost:3000";
+};
+
 export const socket = io(
-  import.meta.env.VITE_SOCKET_URL || "http://localhost:3000",
+  getSocketUrl(),
   {
     withCredentials: true,
     transports: ["websocket", "polling"],

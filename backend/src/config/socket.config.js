@@ -113,25 +113,19 @@ const initSocket = (httpServer) => {
     // =========================
 
     socket.on("disconnect", async () => {
-
-      console.log(
-        `Socket disconnected: ${socket.id}`
-      );
-
-      const key = `user:${socket.user.id}:sockets`;
-
-      const count = await redis.decr(key);
-
-      if (count <= 0) {
-
-        await redis.del(key);
-
-        io.emit("user_offline", {
-          userId: socket.user.id,
-        });
-
+      console.log(`Socket disconnected: ${socket.id}`);
+      try {
+        const key = `user:${socket.user.id}:sockets`;
+        const count = await redis.decr(key);
+        if (count <= 0) {
+          await redis.del(key);
+          io.emit("user_offline", {
+            userId: socket.user.id,
+          });
+        }
+      } catch (redisErr) {
+        // Redis offline is okay
       }
-
     });
 
   });
